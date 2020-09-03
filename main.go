@@ -1,0 +1,155 @@
+// Licensed to Mykola Mogylenko <mmogylenko@gmail.com> under one or more contributor
+// license agreements. See the NOTICE file distributed with
+// this work for additional information regarding copyright
+// ownership. Mykola Mogylenko <mmogylenko@gmail.com> licenses this file to you under
+// the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+package main
+
+import (
+	"fmt"
+	"os"
+	"os/signal"
+	"strconv"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
+	"github.com/aws/aws-sdk-go/aws/session"
+
+	"context"
+	"syscall"
+
+	"github.com/Comcast/kuberhealthy/v2/pkg/checks/external/checkclient"
+	log "github.com/sirupsen/logrus"
+)
+
+var (
+	buildVersion string = ""
+	buildTime    string = ""
+
+	sess  *session.Session
+	debug bool
+
+	// Environment Variables
+	targetArnEnv = os.Getenv("TARGET_ARN")
+	debugEnv     = os.Getenv("DEBUG")
+
+	ctx context.Context
+	// Channel for interrupt signals
+	signalChan chan os.Signal
+)
+
+func createAWSSession() *session.Session {
+	// Build an AWS session
+	log.Debugln("Building AWS session")
+	return session.Must(session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true)))
+}
+
+func init() {
+	var err error
+
+	ctx = context.Background()
+	signalChan = make(chan os.Signal, 2)
+
+	// Relay incoming OS interrupt signals to the signalChan
+	signal.Notify(signalChan, os.Interrupt, os.Kill)
+	// Check if ARN Environment variable is set
+	if len(targetArnEnv) == 0 {
+		log.Fatalln("ARN Environment variable is not set (TARGET_ARN)")
+	}
+	// Enable Debug just in case
+	if len(debugEnv) != 0 {
+
+		debug, err = strconv.ParseBool(debugEnv)
+		if err != nil {
+			log.Fatalln("Failed to parse DEBUG Environment variable:", err.Error())
+		}
+	}
+
+	if debug {
+		log.Infoln("Debug logging enabled")
+		log.SetLevel(log.DebugLevel)
+	}
+	// APP Build information
+	log.Debugln("Application Version:", buildVersion)
+	log.Debugln("Application Build Time:", buildTime)
+	// APP Environment
+	log.Debugln(os.Args)
+
+}
+
+func main() {
+
+	var err error
+
+	if arn.IsARN(targetArnEnv) != true {
+		log.Errorln("ASSUMED_ROLE_ARN environment variable is not ARN:", targetArnEnv)
+		checkclient.ReportFailure([]string{"ASSUMED_ROLE_ARN environment variable is not ARN"})
+		return
+
+	}
+	log.Debugln("TARGET_ARN environment variable matches ARN format")
+
+	sess = createAWSSession()
+	if sess == nil {
+		err = fmt.Errorf("nil AWS session: %v", sess)
+		checkclient.ReportFailure([]string{err.Error()})
+		return
+	}
+
+	go listenForInterrupts()
+
+	// Catch panics
+	var r interface{}
+	defer func() {
+		r = recover()
+		if r != nil {
+			log.Infoln("Recovered panic:", r)
+			checkclient.ReportFailure([]string{r.(string)})
+		}
+	}()
+
+	select {
+	case err = <-runArnCheck():
+		if err != nil {
+			// Report a failure if there an error occurred during the check.
+			err = fmt.Errorf("Error occurred during runArnCheck: %w", err)
+			log.Infoln("IAM check failed")
+			log.Debugln(err)
+			checkclient.ReportFailure([]string{err.Error()})
+			return
+		}
+		log.Infoln("IAM check successful")
+	case <-ctx.Done():
+		return
+	}
+
+	checkclient.ReportSuccess()
+
+}
+
+// listenForInterrupts watches the signal and done channels for termination.
+func listenForInterrupts() {
+
+	// Relay incoming OS interrupt signals to the signalChan.
+	signal.Notify(signalChan, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGINT)
+	sig := <-signalChan // This is a blocking operation -- the routine will stop here until there is something sent down the channel.
+	log.Infoln("Received an interrupt signal from the signal channel")
+	log.Debugln("Signal received was:", sig.String())
+
+	// Clean up pods here.
+	log.Infoln("Shutting down")
+
+	os.Exit(0)
+}

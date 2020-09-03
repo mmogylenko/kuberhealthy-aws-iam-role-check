@@ -1,0 +1,17 @@
+apiVersion: comcast.github.io/v1
+kind: KuberhealthyCheck
+metadata:
+  name: aws-iam-role
+spec:
+  runInterval: 5m
+  timeout: 1m
+  podSpec:
+    containers:
+    - name: main
+      image: khcheck-aws-iam-role:latest
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: TARGET_ARN
+          value: "arn:aws:iam::000000000000:role/kubernetes-example-role"
+        - name: DEBUG
+          value: "1"
