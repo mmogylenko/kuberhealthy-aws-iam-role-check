@@ -92,7 +92,7 @@ jobs:
       - name: Push new latest image
         run: |
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          IMAGE_ID=kuberhealthy-aws-iam-role-check/$IMAGE_NAME
+          IMAGE_ID=mmogylenko/$IMAGE_NAME
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker tag $IMAGE_NAME $IMAGE_ID:latest
           docker push $IMAGE_ID:$VERSION

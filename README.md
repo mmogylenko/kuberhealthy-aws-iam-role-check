@@ -107,7 +107,7 @@ kubectl apply -f khcheck-aws-iam-role.yaml -n kuberhealthy
 ```
 ##### Container Image
 
-Image is available both from [Docker HUB](https://hub.docker.com/r/mmogylenko/kuberhealthy-aws-iam-role-check) and [Github Container Registry](https://github.com/users/mmogylenko/packages/container/khcheck-aws-iam-role/)
+Image is available both from [Docker HUB](https://hub.docker.com/r/mmogylenko/khcheck-aws-iam-role) and [Github Container Registry](https://github.com/users/mmogylenko/packages/container/khcheck-aws-iam-role/)
 
 ### Licensing
 
