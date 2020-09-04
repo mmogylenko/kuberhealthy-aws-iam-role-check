@@ -44,7 +44,7 @@ jobs:
     - name: Build image
       run: |
         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-				docker build . --file Dockerfile --tag $IMAGE_NAME --build-arg VERSION=$VERSION
+        docker build . --file Dockerfile --tag $IMAGE_NAME --build-arg VERSION=$VERSION
 
     - name: Login to GitHub Container Registry
       run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
