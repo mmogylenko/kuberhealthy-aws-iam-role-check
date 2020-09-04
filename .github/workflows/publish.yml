@@ -33,7 +33,7 @@ jobs:
       run: go test -v .
 
   # Push image to GitHub Container Registry
-  ghcr.io:
+  ghcr_io:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     # Ensure test job passes before pushing image.
@@ -71,7 +71,7 @@ jobs:
         docker push $IMAGE_ID:$VERSION
         docker push $IMAGE_ID:latest
 
-  hub.docker.com:
+  docker_hub:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     # Ensure test job passes before pushing image.
