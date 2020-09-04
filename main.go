@@ -95,7 +95,10 @@ func main() {
 
 	if arn.IsARN(targetArnEnv) != true {
 		log.Errorln("ASSUMED_ROLE_ARN environment variable is not ARN:", targetArnEnv)
-		checkclient.ReportFailure([]string{"ASSUMED_ROLE_ARN environment variable is not ARN"})
+		err = checkclient.ReportFailure([]string{"ASSUMED_ROLE_ARN environment variable is not ARN"})
+		if err != nil {
+			log.Println(err.Error())
+		}
 		return
 
 	}
@@ -104,7 +107,10 @@ func main() {
 	sess = createAWSSession()
 	if sess == nil {
 		err = fmt.Errorf("nil AWS session: %v", sess)
-		checkclient.ReportFailure([]string{err.Error()})
+		err = checkclient.ReportFailure([]string{err.Error()})
+		if err != nil {
+			log.Println(err.Error())
+		}
 		return
 	}
 
@@ -116,7 +122,10 @@ func main() {
 		r = recover()
 		if r != nil {
 			log.Infoln("Recovered panic:", r)
-			checkclient.ReportFailure([]string{r.(string)})
+			err = checkclient.ReportFailure([]string{r.(string)})
+			if err != nil {
+				log.Println(err.Error())
+			}
 		}
 	}()
 
@@ -127,7 +136,10 @@ func main() {
 			err = fmt.Errorf("Error occurred during runArnCheck: %w", err)
 			log.Infoln("IAM check failed")
 			log.Debugln(err)
-			checkclient.ReportFailure([]string{err.Error()})
+			err = checkclient.ReportFailure([]string{err.Error()})
+			if err != nil {
+				log.Println(err.Error())
+			}
 			return
 		}
 		log.Infoln("IAM check successful")
@@ -135,7 +147,10 @@ func main() {
 		return
 	}
 
-	checkclient.ReportSuccess()
+	err = checkclient.ReportSuccess()
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 }
 
