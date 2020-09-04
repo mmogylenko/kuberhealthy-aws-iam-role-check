@@ -1,7 +1,8 @@
 FROM golang:1.15-alpine AS builder
 
+ARG VERSION=0.0.1
 ENV APP_NAME=khcheck-aws-iam-role
-ENV APP_VERSION=0.0.1
+ENV APP_VERSION=$VERSION
 
 # GO goods
 ENV GO111MODULE=on \

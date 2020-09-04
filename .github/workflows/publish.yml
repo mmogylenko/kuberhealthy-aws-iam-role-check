@@ -1,0 +1,72 @@
+name: Publish to GitHub Container Registry
+
+on:
+  push:
+    # Publish `v*` tags as releases.
+    tags:
+    - v*
+  pull_request:
+
+env:
+  IMAGE_NAME: khcheck-aws-iam-role
+
+jobs:
+  # Run tests.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.14
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: go build -v .
+
+    - name: Test
+      env:
+        TARGET_ARN: "arn:aws:sts::012345678910:role/read-access-to-everything"
+      run: go test -v .
+
+  # Push image to GitHub Container Registry
+  push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    # Ensure test job passes before pushing image.
+    needs: test
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build image
+      run: |
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        docker build . --file Dockerfile --tag $IMAGE_NAME --build-arg VERSION=$VERSION
+
+    - name: Login to GitHub Container Registry
+      run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push image to GitHub
+      run: |
+        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+        # Strip "v" prefix from tag name
+        # [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+
+        # Push image with both version tag and `latest` tag
+        docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+        docker tag $IMAGE_NAME $IMAGE_ID:latest
+        docker push $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:latest
