@@ -1,4 +1,4 @@
-name: Publish to ghcr.io
+name: Publish
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
       run: go test -v .
 
   # Push image to GitHub Container Registry
-  push:
+  ghcr.io:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     # Ensure test job passes before pushing image.
@@ -41,7 +41,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Build image
+    - name: Build Image
       run: |
         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
         docker build . --file Dockerfile --tag $IMAGE_NAME --build-arg VERSION=$VERSION
@@ -70,3 +70,30 @@ jobs:
         docker tag $IMAGE_NAME $IMAGE_ID:latest
         docker push $IMAGE_ID:$VERSION
         docker push $IMAGE_ID:latest
+
+  hub.docker.com:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    # Ensure test job passes before pushing image.
+    needs: test
+    steps:
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Build Image
+        run: |
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          docker build . --file Dockerfile --tag $IMAGE_NAME --build-arg VERSION=$VERSION
+
+      - name: Log into Docker Hub
+        run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u mmogylenko --password-stdin
+
+      - name: Push new latest image
+        run: |
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          IMAGE_ID=kuberhealthy-aws-iam-role-check/$IMAGE_NAME
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:latest
+          docker push $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:latest

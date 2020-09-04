@@ -1,6 +1,7 @@
 ## Kuberhealthy AWS IAM Role Check
 
-![Go](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/workflows/Go/badge.svg) ![Gosec](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/workflows/Gosec/badge.svg)
+![Go](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/workflows/Go/badge.svg) ![Gosec](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/workflows/Gosec/badge.svg) [![GitHub tag](https://img.shields.io/github/tag/mmogylenko/kuberhealthy-aws-iam-role-check.svg)](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/tags/)
+
 
 `Kuberhealthy AWS IAM Role Check` validates if containers running within your cluster can properly make AWS service requests
 
@@ -22,7 +23,7 @@ spec:
   podSpec:
     containers:
     - name: main
-      image: khcheck-aws-iam-role:latest
+      image: ghcr.io/mmogylenko/khcheck-aws-iam-role:latest
       imagePullPolicy: IfNotPresent
       env:
         - name: TARGET_ARN
@@ -97,13 +98,16 @@ Successfully tagged khcheck-aws-iam-role:0.0.1
 
 #### Installation
 
+>Make sure you are using the latest release of Kuberhealthy 2.2.0.
+
 Run `kubectl apply` against [example spec file](example/khcheck-aws-iam-role.yaml)
 
 ```bash
 kubectl apply -f khcheck-aws-iam-role.yaml -n kuberhealthy
 ```
+##### Container Image
 
-Make sure you are using the latest release of Kuberhealthy 2.2.0.
+Image is available both from [Docker HUB](https://hub.docker.com/r/mmogylenko/kuberhealthy-aws-iam-role-check) and [Github Container Registry](https://github.com/users/mmogylenko/packages/container/khcheck-aws-iam-role/)
 
 ### Licensing
 

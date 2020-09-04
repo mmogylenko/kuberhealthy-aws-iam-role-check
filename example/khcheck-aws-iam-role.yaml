@@ -8,7 +8,7 @@ spec:
   podSpec:
     containers:
     - name: main
-      image: khcheck-aws-iam-role:latest
+      image: ghcr.io/mmogylenko/khcheck-aws-iam-role:latest
       imagePullPolicy: IfNotPresent
       env:
         - name: TARGET_ARN
