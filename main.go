@@ -64,13 +64,8 @@ func init() {
 
 	// Relay incoming OS interrupt signals to the signalChan
 	signal.Notify(signalChan, os.Interrupt, os.Kill)
-	// Check if ARN Environment variable is set
-	if len(targetArnEnv) == 0 {
-		log.Fatalln("ARN Environment variable is not set (TARGET_ARN)")
-	}
 	// Enable Debug just in case
 	if len(debugEnv) != 0 {
-
 		debug, err = strconv.ParseBool(debugEnv)
 		if err != nil {
 			log.Fatalln("Failed to parse DEBUG Environment variable:", err.Error())
@@ -86,6 +81,10 @@ func init() {
 	log.Debugln("Application Build Time:", buildTime)
 	// APP Environment
 	log.Debugln(os.Args)
+	// Check if ARN Environment variable is set
+	if len(targetArnEnv) == 0 {
+		log.Fatalln("ARN Environment variable is not set (TARGET_ARN)")
+	}
 
 }
 

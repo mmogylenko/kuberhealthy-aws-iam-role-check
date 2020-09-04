@@ -105,11 +105,6 @@ kubectl apply -f khcheck-aws-iam-role.yaml -n kuberhealthy
 
 Make sure you are using the latest release of Kuberhealthy 2.2.0.
 
-
-### TODO's
-
- - Write Tests
-
 ### Licensing
 
 This project is licensed under the Apache V2 License. See [LICENSE](LICENSE) for more information.
