@@ -20,6 +20,9 @@ metadata:
 spec:
   runInterval: 5m
   timeout: 1m
+  extraAnnotations:
+    iam.amazonaws.com/role: "arn:aws:iam::000000000000:role/kubernetes-example-role" # Replace this value with your ARN
+    iam.amazonaws.com/external-id: <role-external-id> # Use this if kube2iam is using external-id for roles
   podSpec:
     containers:
     - name: main
