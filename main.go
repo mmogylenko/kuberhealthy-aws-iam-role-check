@@ -43,6 +43,7 @@ var (
 
 	// Environment Variables
 	targetArnEnv = os.Getenv("TARGET_ARN")
+	nodeName     = os.Getenv("NODE_NAME")
 	debugEnv     = os.Getenv("DEBUG")
 
 	ctx context.Context
@@ -132,8 +133,8 @@ func main() {
 	case err = <-runArnCheck():
 		if err != nil {
 			// Report a failure if there an error occurred during the check.
-			err = fmt.Errorf("Error occurred during runArnCheck: %w", err)
-			log.Infoln("IAM check failed")
+			err = fmt.Errorf("Error occurred during runArnCheck: %s", err)
+			log.Infoln("IAM check failed on ", nodeName)
 			log.Debugln(err)
 			err = checkclient.ReportFailure([]string{err.Error()})
 			if err != nil {

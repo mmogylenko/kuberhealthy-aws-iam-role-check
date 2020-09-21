@@ -33,6 +33,10 @@ spec:
           value: "arn:aws:iam::000000000000:role/kubernetes-example-role"
         - name: DEBUG
           value: "1"
+        - name: NODE_NAME # Good to know which worker is failing
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
 ```
 , where *TARGET_ARN* is a target ARN that needs to be validated.
 
