@@ -129,11 +129,12 @@ func runArnCheck() chan error {
 			if aerr, ok := err.(awserr.Error); ok {
 				switch aerr.Code() {
 				default:
-					checkChan <- fmt.Errorf(aerr.Error())
+					log.Debugln(aerr.Error())
 				}
 			} else {
-				checkChan <- fmt.Errorf(err.Error())
+				log.Debugln(err.Error())
 			}
+			checkChan <- fmt.Errorf("[GetCallerIdentity] Failed to get details about the IAM user or role")
 			return
 		}
 
@@ -147,11 +148,11 @@ func runArnCheck() chan error {
 		log.Debugln("ARN from assumed-role", assumeArn.String())
 
 		if targetArn.equalWith(assumeArn, []string{"Service", "AccountID", "ResourceID"}) {
-			log.Debugln("assumed-role ARN is matching target ARN")
+			log.Debugln("Assumed-role ARN is matching target ARN")
 			checkChan <- nil
 		} else {
-			log.Println("assumed-role ARN is not matching Target ARN. Set DEBUG=1 to see the ARNs difference")
-			checkChan <- fmt.Errorf("assumed-role ARN is not matching Target ARN")
+			log.Println("Assumed-role ARN is not matching Target ARN. Set DEBUG=1 to see the ARNs difference")
+			checkChan <- fmt.Errorf("Assumed-role ARN is not matching Target ARN")
 		}
 		return
 	}()
