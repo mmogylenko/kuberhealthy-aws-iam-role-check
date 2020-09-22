@@ -80,6 +80,11 @@ func init() {
 	// APP Build information
 	log.Debugln("Application Version:", buildVersion)
 	log.Debugln("Application Build Time:", buildTime)
+	// Good to know which worker is failing
+	if len(nodeName) != 0 {
+		log.Debugln("Running on:", nodeName)
+	}
+
 	// APP Environment
 	log.Debugln(os.Args)
 	// Check if ARN Environment variable is set
@@ -134,7 +139,7 @@ func main() {
 		if err != nil {
 			// Report a failure if there an error occurred during the check.
 			err = fmt.Errorf("Error occurred during runArnCheck: %s", err)
-			log.Infoln("IAM check failed on ", nodeName)
+			log.Infoln("IAM Role check failed. Set env DEBUG=1 for more verbosity")
 			log.Debugln(err)
 			err = checkclient.ReportFailure([]string{err.Error()})
 			if err != nil {
@@ -142,7 +147,7 @@ func main() {
 			}
 			return
 		}
-		log.Infoln("IAM check successful")
+		log.Infoln("IAM Role check successful")
 	case <-ctx.Done():
 		return
 	}
