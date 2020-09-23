@@ -19,12 +19,15 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/arn"
+	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/aws/session"
 
 	"context"
@@ -54,7 +57,14 @@ var (
 func createAWSSession() *session.Session {
 	// Build an AWS session
 	log.Debugln("Building AWS session")
-	return session.Must(session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true)))
+	awsConfig := aws.NewConfig().WithCredentialsChainVerboseErrors(debug)
+	awsConfig.HTTPClient = &http.Client{
+		Timeout: time.Duration(10) * time.Second,
+	}
+	awsConfig.Retryer = client.DefaultRetryer{
+		NumMaxRetries: 1,
+	}
+	return session.Must(session.NewSession(awsConfig))
 }
 
 func init() {
