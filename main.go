@@ -62,7 +62,7 @@ func createAWSSession() *session.Session {
 		Timeout: time.Duration(10) * time.Second,
 	}
 	awsConfig.Retryer = client.DefaultRetryer{
-		NumMaxRetries: 1,
+		NumMaxRetries: 2,
 	}
 	return session.Must(session.NewSession(awsConfig))
 }
