@@ -1,6 +1,6 @@
 ## Kuberhealthy AWS IAM Role Check
 
-![Go](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/workflows/Go/badge.svg) ![Gosec](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/workflows/Gosec/badge.svg) [![GitHub tag](https://img.shields.io/github/tag/mmogylenko/kuberhealthy-aws-iam-role-check.svg)](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/tags/)
+![Go](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/workflows/Go/badge.svg) ![Gosec](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/workflows/Gosec/badge.svg) ![containerscan](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/workflows/ContainerScan/badge.svg) [![GitHub tag](https://img.shields.io/github/tag/mmogylenko/kuberhealthy-aws-iam-role-check.svg)](https://github.com/mmogylenko/kuberhealthy-aws-iam-role-check/tags/)
 
 
 `Kuberhealthy AWS IAM Role Check` validates if containers running within your cluster can properly make AWS service requests
