@@ -1,6 +1,7 @@
 FROM golang:1.15-alpine AS builder
 
 ARG VERSION=0.0.1
+ARG TARGET_ARCH
 ENV APP_NAME=khcheck-aws-iam-role
 ENV APP_VERSION=$VERSION
 
@@ -8,7 +9,7 @@ ENV APP_VERSION=$VERSION
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=amd64
+    GOARCH=$TARGET_ARCH
 
 # Move to working directory /build
 WORKDIR /build 

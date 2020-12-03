@@ -1,6 +1,6 @@
 module kuberhealthy-aws-iam-role-check
 
-go 1.14
+go 1.15
 
 require (
 	github.com/Comcast/kuberhealthy/v2 v2.2.0
