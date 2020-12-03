@@ -25,6 +25,8 @@ jobs:
       run: go build -v .
 
     - name: Test
+      env:
+        TARGET_ARN: "arn:aws:sts::012345678910:role/read-access-to-everything"
       run: go test -v .
 
   # Push image to GitHub Container Registry and Docker Hub
